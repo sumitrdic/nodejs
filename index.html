@@ -1,4 +1,199 @@
-<!DOCTYPE html> <html> <head>    
-  <meta name="viewport" content="width=device-width">
+<html>
+	<title>MyWorld</title>
 
-<title>Socket.IO chat</title> <style> body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; } #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); } #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; } #input:focus { outline: none; } #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; } #messages { list-style-type: none; margin: 0; padding: 0; } #messages > li { padding: 0.5rem 1rem; } #messages > li:nth-child(odd) { background: #efefef; } </style> </head> <body> <ul id="messages"></ul> <form id="form" action=""> <input id="input" autocomplete="off" /><button>Send</button> </form> <script src="/socket.io/socket.io.js"></script> <script> var socket = io(); var messages = document.getElementById('messages'); var form = document.getElementById('form'); var input = document.getElementById('input'); form.addEventListener('submit', function(e) { e.preventDefault(); if (input.value) { socket.emit('chat message', input.value); input.value = ''; } }); socket.on('chat message', function(msg) { var item = document.createElement('li'); item.textContent = msg; messages.appendChild(item); window.scrollTo(0, document.body.scrollHeight); }); </script> </body> </html>
+<!-- Mirrored from sumit-a4db0.firebaseapp.com/home.html by HTTrack Website Copier/3.x [XR&CO'2017], Wed, 17 Aug 2022 19:13:03 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head><meta http-equiv = "Content-Type" content = "text/html; charset=utf-8">
+<meta name="viewport" content ="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#075d52" />
+	
+  <!-- THESE FILES ARE ONLY REQUIRED FOR THE CURRENT EXAMPLE -->
+  
+
+  
+		<!-- The main CSS file -->
+		
+<style>
+	
+	* {
+	margin: 0px;
+	padding: 0px;
+	font-family: tahoma, sana serif;
+	box-sizing: border-box;
+}
+
+body {
+
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	background: #fff;
+	position: relative;
+}
+
+
+.cover {
+
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	left: 0;
+	top: 0;
+	/* Full width */
+	height: 100%;
+	/* Full height */
+	overflow: auto;
+	/* Enable scroll if needed */
+
+	background: gray; 
+	no -repeat -webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+
+	overflow-x: hidden;
+
+}
+
+.chatlogs {
+	padding: 10px;
+	max-height: 90%;
+	min-height: 20%;
+	overflow-x: hidden;
+	overflow-y: :scroll;
+
+}
+
+.chat-form {
+	width: 100%;
+	position: fixed;
+	margin: 4px;
+	bottom: 0;
+
+}
+
+
+.chat-form textarea {
+	overflow: hidden;
+	height: 40px;
+	width: 80%;
+	background: #fbfbfb;
+	border: 2px solid #eee;
+	border-radius: 0px;
+	resize: none;
+	padding: 10px;
+	font-size: 16px;
+	color: #333;
+	border: none;
+	outline: none;
+}
+
+.chat-form textarea:focus {
+	background: #fff;
+}
+
+.chat-form button {
+	height: 40px;
+	width: 18%;
+	background: #2E8B57;
+	border: none;
+	font-size: 20px;
+	color: #fff;
+	margin-right: 5px;
+	border-radius: 0px 3px 3px 0px;
+	cursor: pointer;
+}
+.message{
+background-color: dodgerblue;
+padding: 5px;
+color: white;
+width: fit-content;
+border-radius: 10px;
+margin-bottom: 10px; 
+font-size: 14px;
+max-width: 80%;
+}
+
+.user_message{ 
+margin-left: auto;  
+background-color: white; 
+color: black;
+} 
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+</head><body>
+
+
+<div class="cover">
+				
+<div class="chatlogs"> </div>
+
+            <script src="/socket.io/socket.io.js"></script>
+        <script>
+             $(function () { 
+        $("textarea").bind("focusout", function (e) { 
+            e.preventDefault();  
+            $(this).focus(); 
+
+        }); 
+
+      }); 
+      
+      
+
+
+        
+        
+var socket = io(); 
+const username = prompt('Welcome! Please enter your name:');
+socket.emit('new-connection', username );
+ 
+ 
+ 
+ function send(){
+ var text=$("textarea").val();  
+ if(text){
+   socket.emit('new-msg', {user: socket.id, msg:text}); 
+ $("textarea").val(""); 
+             }
+}
+socket.on("new-connection", function (user) { 
+             });
+socket.on("new-msgg", function(data) { 
+var msg ="";
+if(data.user!=socket.id){
+ msg= '<div class="message">'+data.msg+' </div>';
+             }
+else{
+     msg= '<div class="message user_message">'+data.msg+' </div>';
+           } 
+                    
+ $(".chatlogs").append(msg);
+    scrolTobottom();
+     
+            });
+        
+            function scrolTobottom() {
+         	
+         var scrolltoh = $('.chatlogs')[0].scrollHeight;
+					$('.chatlogs').scrollTop(scrolltoh);
+	    var scrolltoh = $('.cover')[0].scrollHeight;
+					$('.cover').scrollTop(scrolltoh);
+        }  
+        
+				 </script>
+
+<div class="chat-form">
+	
+	<div style="display:flex;align-items:flex-start;" >
+	
+		<textarea id="text" autofocus placeholder="type message..."  ></textarea>
+		<button id="send" onclick="send();" >Send</button>
+</div>
+
+</div>
+</div>	
+</body>
+</html>

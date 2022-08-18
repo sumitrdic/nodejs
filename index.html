@@ -1,17 +1,10 @@
 <html>
 	<title>MyWorld</title>
-
-<!-- Mirrored from sumit-a4db0.firebaseapp.com/home.html by HTTrack Website Copier/3.x [XR&CO'2017], Wed, 17 Aug 2022 19:13:03 GMT -->
-<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 <head><meta http-equiv = "Content-Type" content = "text/html; charset=utf-8">
 <meta name="viewport" content ="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#075d52" />
 	
-  <!-- THESE FILES ARE ONLY REQUIRED FOR THE CURRENT EXAMPLE -->
-  
-
-  
-		<!-- The main CSS file -->
 		
 <style>
 	
@@ -39,12 +32,8 @@ body {
 	position: fixed;
 	left: 0;
 	top: 0;
-	/* Full width */
 	height: 100%;
-	/* Full height */
 	overflow: auto;
-	/* Enable scroll if needed */
-
 	background: gray; 
 	no -repeat -webkit-background-size: cover;
 	-moz-background-size: cover;
@@ -53,12 +42,34 @@ body {
 
 	overflow-x: hidden;
 
-}
+} 
 
-.chatlogs {
+.header { 
+display :flex;
+position: fixed;        
+top:0; 
+padding :5px;
+width: 100%;
+z-index: 1; 
+background: #075d52; 
+color: #fff;
+box-shadow: 0px 0px 16px 8px rgba(0,0,0,0.2);
+	}
+	
+.namestatus { 
+display :flex; 
+
+	} 
+	.status {  
+	padding-left :20px;
+	  padding-bottom:5px;
+	  align-self: flex-end;
+	    }
+.chatlogs { 
+margin-top:40px; 
+margin-bottom :10px;
 	padding: 10px;
-	max-height: 90%;
-	min-height: 20%;
+	
 	overflow-x: hidden;
 	overflow-y: :scroll;
 
@@ -67,9 +78,9 @@ body {
 .chat-form {
 	width: 100%;
 	position: fixed;
-	margin: 4px;
+	padding: 4px;
 	bottom: 0;
-
+background: gray;  
 }
 
 
@@ -125,32 +136,47 @@ color: black;
 
 </head><body>
 
-
 <div class="cover">
-				
+				<div class="header"> 
+				<div class="namestatus">
+				<h1 class ="username">Sumit</h1> 
+				<div class ="status">online</div> 
+				</div>
+				</div>
+
 <div class="chatlogs"> </div>
 
             <script src="/socket.io/socket.io.js"></script>
-        <script>
-             $(function () { 
+        <script> 
+        
+        var socket = io(); 
+  $(function () { 
         $("textarea").bind("focusout", function (e) { 
             e.preventDefault();  
             $(this).focus(); 
 
-        }); 
-
+        });  
+        
+        $('textarea').on('keyup', function () {
+    
+    if($("textarea").val()!=""){ 
+    socket.emit('status', "typing..." ); 
+    
+    }
+});
+    
       }); 
       
-      
 
-
-        
-        
-var socket = io(); 
 const username = prompt('Welcome! Please enter your name:');
 socket.emit('new-connection', username );
+socket.on("new-connection",function(user) {   
+ $("h1").html(user);   
+ socket.emit('status', "online" );
+  });
  
- 
+ socket.on("status",function(status) {   
+ $(".status").html(status);   });
  
  function send(){
  var text=$("textarea").val();  
@@ -158,9 +184,9 @@ socket.emit('new-connection', username );
    socket.emit('new-msg', {user: socket.id, msg:text}); 
  $("textarea").val(""); 
              }
+             socket.emit('status', "online" );
 }
-socket.on("new-connection", function (user) { 
-             });
+
 socket.on("new-msgg", function(data) { 
 var msg ="";
 if(data.user!=socket.id){
@@ -187,12 +213,14 @@ else{
 
 <div class="chat-form">
 	
+	
+	<center>
 	<div style="display:flex;align-items:flex-start;" >
 	
 		<textarea id="text" autofocus placeholder="type message..."  ></textarea>
 		<button id="send" onclick="send();" >Send</button>
 </div>
-
+</center>
 </div>
 </div>	
 </body>

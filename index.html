@@ -45,7 +45,6 @@ body {
 } 
 
 .header { 
-display :flex;
 position: fixed;        
 top:0; 
 padding :5px;
@@ -53,25 +52,16 @@ width: 100%;
 z-index: 1; 
 background: #075d52; 
 color: #fff;
-box-shadow: 0px 0px 16px 8px rgba(0,0,0,0.2);
+box-shadow: 0px 0px 16px 8px rgba(0,0,0,0.2);  
+text-align: center;
 	}
 	
-.namestatus { 
-display :flex; 
-
-	} 
-	.status {  
-	padding-left :20px;
-	  padding-bottom:5px;
-	  align-self: flex-end;
-	    }
 .chatlogs { 
-margin-top:40px; 
+margin-top:25px; 
 margin-bottom :10px;
-	padding: 10px;
-	
-	overflow-x: hidden;
-	overflow-y: :scroll;
+padding: 10px;
+overflow-x: hidden;
+overflow-y: :scroll;
 
 }
 
@@ -138,10 +128,7 @@ color: black;
 
 <div class="cover">
 				<div class="header"> 
-				<div class="namestatus">
-				<h1 class ="username">Sumit</h1> 
-				<div class ="status">online</div> 
-				</div>
+				<div class ="status"></div> 
 				</div>
 
 <div class="chatlogs"> </div>
@@ -167,16 +154,9 @@ color: black;
     
       }); 
       
-
-const username = prompt('Welcome! Please enter your name:');
-socket.emit('new-connection', username );
-socket.on("new-connection",function(user) {   
- $("h1").html(user);   
- socket.emit('status', "online" );
-  });
- 
  socket.on("status",function(status) {   
- $(".status").html(status);   });
+ $(".header").html(status);   });
+ 
  
  function send(){
  var text=$("textarea").val();  
@@ -208,6 +188,7 @@ else{
 	    var scrolltoh = $('.cover')[0].scrollHeight;
 					$('.cover').scrollTop(scrolltoh);
         }  
+ 
         
 				 </script>
 

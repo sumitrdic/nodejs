@@ -1,208 +1,107 @@
 <html>
-	<title>MyWorld</title>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-<head><meta http-equiv = "Content-Type" content = "text/html; charset=utf-8">
+ <head>
+ 	<meta http-equiv = "Content-Type" content = "text/html; charset=utf-8">
 <meta name="viewport" content ="width=device-width, initial-scale=1">
-	<meta name="theme-color" content="#075d52" />
 	
-		
-<style>
 	
-	* {
-	margin: 0px;
-	padding: 0px;
-	font-family: tahoma, sana serif;
-	box-sizing: border-box;
+ <style>
+ 	 	#friendsVideo, #call_img{
+ width: 100%;
+ height: 95%;
+}
+ 	#yourVideo {
+ 	position:absolute;
+	bottom:5%;
+	right:0;
+ width: 30%;
+ height: 30%;
+ }
+
+#end_btn {
+  
+	         position: fixed;        
+	            bottom:0;
+                width: 100%;
+                background:red;
+                color: #fff;
+               font-weight:bold;
+               font-size:20px;
+               text-align:center;
+               padding:10px;
+	
+}
+ </style>
+
+ </head>
+ 
+<body onload="showMyFace()" style="background:#000;margin: 0px auto;width:100%;">
+ 
+ <video id="yourVideo" autoplay muted></video>
+ <video id="friendsVideo" autoplay></video>
+  <button onclick="cut()"  id="end_btn">End Call</button>
+
+ <script src="https://www.gstatic.com/firebasejs/3.6.4/firebase.js"></script>
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  	<script>
+ var config = {
+    apiKey: "AIzaSyCuurXj8TvGjGQEc4CA8H__QX_z-1DBPLA",
+    authDomain: "sumit-a4db0.firebaseapp.com",
+    databaseURL: "https://sumit-a4db0.firebaseio.com",
+    projectId: "sumit-a4db0",
+    storageBucket: "sumit-a4db0.appspot.com",
+    messagingSenderId: "620689182891"
+  };
+  firebase.initializeApp(config);
+var database = firebase.database().ref();
+var yourVideo = document.getElementById("yourVideo");
+var friendsVideo = document.getElementById("friendsVideo");
+var yourId = Math.floor(Math.random()*1000000000);
+var servers = {'iceServers': [{'urls': 'stun:stun.services.mozilla.com'}, {'urls': 'stun:stun.l.google.com:19302'}, {'urls': 'turn:numb.viagenie.ca','credential': 'Sumit','username': 'sumitrdic@gmail.com'}]};
+var pc = new RTCPeerConnection(servers);
+pc.onicecandidate = (event => event.candidate?sendMessage(yourId, JSON.stringify({'ice': event.candidate})):console.log("Sent All Ice") );
+pc.onaddstream = (event => friendsVideo.srcObject = event.stream);
+
+function sendMessage(senderId, data) {
+ var msg = database.push({ sender: senderId, message: data });
+ msg.remove();
 }
 
-body {
+function readMessage(data) {
+ var msg = JSON.parse(data.val().message);
+ var sender = data.val().sender;
+ if (sender != yourId) {
+ if (msg.ice != undefined)
+ pc.addIceCandidate(new RTCIceCandidate(msg.ice));
+ else if (msg.sdp.type == "offer")
+ pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+ .then(() => pc.createAnswer())
+ .then(answer => pc.setLocalDescription(answer))
+ .then(() => sendMessage(yourId, JSON.stringify({'sdp': pc.localDescription})));
+ else if (msg.sdp.type == "answer")
+ pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+ }
+};
 
-	margin: 0px;
-	padding: 0px;
-	width: 100%;
-	background: #fff;
-	position: relative;
+database.on('child_added', readMessage);
+
+function showMyFace() {
+ navigator.mediaDevices.getUserMedia({audio:true, video:true})
+ .then(stream => yourVideo.srcObject = stream)
+ .then(stream => pc.addStream(stream))
+ .then(()=>showFriendsFace());
 }
 
+function showFriendsFace() {
+ pc.createOffer()
+ .then(offer => pc.setLocalDescription(offer) )
+ .then(() => sendMessage(yourId, JSON.stringify({'sdp': pc.localDescription})) );
+}
 
-.cover {
-
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	left: 0;
-	top: 0;
-	height: 100%;
-	overflow: auto;
-	background: gray; 
-	no -repeat -webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-
-	overflow-x: hidden;
-
-} 
-
-.header { 
-position: fixed;        
-top:0; 
-padding :5px;
-width: 100%;
-z-index: 1; 
-background: #075d52; 
-color: #fff;
-box-shadow: 0px 0px 16px 8px rgba(0,0,0,0.2);  
-text-align: center;
+function cut(){
+	pc.close();
+	pc=null;
 	}
-	
-.chatlogs { 
-margin-top:25px; 
-margin-bottom :10px;
-padding: 10px;
-overflow-x: hidden;
-overflow-y: :scroll;
+ </script>
 
-}
-
-.chat-form {
-	width: 100%;
-	position: fixed;
-	padding: 4px;
-	bottom: 0;
-background: gray;  
-}
-
-
-.chat-form textarea {
-	overflow: hidden;
-	height: 40px;
-	width: 80%;
-	background: #fbfbfb;
-	border: 2px solid #eee;
-	border-radius: 0px;
-	resize: none;
-	padding: 10px;
-	font-size: 16px;
-	color: #333;
-	border: none;
-	outline: none;
-}
-
-.chat-form textarea:focus {
-	background: #fff;
-}
-
-.chat-form button {
-	height: 40px;
-	width: 18%;
-	background: #2E8B57;
-	border: none;
-	font-size: 20px;
-	color: #fff;
-	margin-right: 5px;
-	border-radius: 0px 3px 3px 0px;
-	cursor: pointer;
-}
-.message{
-background-color: dodgerblue;
-padding: 5px;
-color: white;
-width: fit-content;
-border-radius: 10px;
-margin-bottom: 10px; 
-font-size: 14px;
-max-width: 80%;
-}
-
-.user_message{ 
-margin-left: auto;  
-background-color: white; 
-color: black;
-} 
-</style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-
-</head><body>
-
-<div class="cover">
-				<div class="header"> 
-				<div class ="status"></div> 
-				</div>
-
-<div class="chatlogs"> </div>
-
-            <script src="/socket.io/socket.io.js"></script>
-        <script> 
-        
-        var socket = io(); 
-  $(function () { 
-        $("textarea").bind("focusout", function (e) { 
-            e.preventDefault();  
-            $(this).focus(); 
-
-        });  
-        
-        $('textarea').on('keyup', function () {
-    
-    if($("textarea").val()!=""){ 
-    socket.emit('status', "typing..." ); 
-    
-    }
-});
-    
-      }); 
-      
- socket.on("status",function(status) {   
- $(".header").html(status);   });
- 
- 
- function send(){
- var text=$("textarea").val();  
- if(text){
-   socket.emit('new-msg', {user: socket.id, msg:text}); 
- $("textarea").val(""); 
-             }
-             socket.emit('status', "online" );
-}
-
-socket.on("new-msgg", function(data) { 
-var msg ="";
-if(data.user!=socket.id){
- msg= '<div class="message">'+data.msg+' </div>';
-             }
-else{
-     msg= '<div class="message user_message">'+data.msg+' </div>';
-           } 
-                    
- $(".chatlogs").append(msg);
-    scrolTobottom();
-     
-            });
-        
-            function scrolTobottom() {
-         	
-         var scrolltoh = $('.chatlogs')[0].scrollHeight;
-					$('.chatlogs').scrollTop(scrolltoh);
-	    var scrolltoh = $('.cover')[0].scrollHeight;
-					$('.cover').scrollTop(scrolltoh);
-        }  
- 
-        
-				 </script>
-
-<div class="chat-form">
-	
-	
-	<center>
-	<div style="display:flex;align-items:flex-start;" >
-	
-		<textarea id="text" autofocus placeholder="type message..."  ></textarea>
-		<button id="send" onclick="send();" >Send</button>
-</div>
-</center>
-</div>
-</div>	
 </body>
 </html>
